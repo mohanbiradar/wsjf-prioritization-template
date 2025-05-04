@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WSJF Prioritization Tool</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --primary-light: #34495e;
+            --accent: #3498db;
+            --accent-light: #5dade2;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #f5f7fa;
+            --dark: #2c3e50;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .instructions {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .instructions-icon {
+            font-size: 24px;
+            color: var(--accent);
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .instructions p {
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul, .instructions ol {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        button:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-add {
+            background-color: var(--success);
+        }
+        
+        .btn-add:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-export {
+            background-color: var(--warning);
+        }
+        
+        .btn-export:hover {
+            background-color: #e67e22;
+        }
+        
+        .btn-sort {
+            background-color: var(--accent);
+        }
+        
+        .btn-sort:hover {
+            background-color: var(--accent-light);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+        
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eeeeee;
+        }
+        
+        tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tbody tr:nth-child(even):hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%232c3e50' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+            padding-right: 30px;
+        }
+        
+        .result {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .priority-1, .priority-2, .priority-3 {
+            font-weight: bold;
+        }
+        
+        .priority-1 {
+            color: #e74c3c;
+        }
+        
+        .priority-2 {
+            color: #f39c12;
+        }
+        
+        .priority-3 {
+            color: #2ecc71;
+        }
+        
+        .row-actions {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .btn-action {
+            padding: 5px;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        
+        .btn-up, .btn-down {
+            background-color: var(--accent);
+        }
+        
+        .btn-delete {
+            background-color: var(--danger);
+        }
+        
+        .btn-up:hover, .btn-down:hover {
+            background-color: var(--accent-light);
+        }
+        
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+        
+        .wsjf-high {
+            background-color: rgba(46, 204, 113, 0.2);
+        }
+        
+        .wsjf-medium {
+            background-color: rgba(243, 156, 18, 0.1);
+        }
+        
+        .toggle-info {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+        
+        .toggle-info:hover {
+            color: var(--accent-light);
+            background: none;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .instructions-content {
+            display: none;
+        }
+        
+        .instructions-content.show {
+            display: block;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+            th, td {
+                padding: 8px;
+            }
+            .btn-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            button {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>WSJF Prioritization Tool</h1>
+        </header>
+        
+        <div class="content">
+            <button class="toggle-info" onclick="toggleInstructions()">
+                <span id="toggle-icon">▶</span> Show Instructions
+            </button>
+            
+            <div class="instructions">
+                <div class="instructions-content" id="instructions-content">
+                    <h3>How to use this WSJF Prioritization Tool:</h3>
+                    <ol>
+                        <li>Enter your project/initiative names</li>
+                        <li>For each project, rate:
+                            <ul>
+                                <li><strong>Business Value:</strong> How valuable is this to the business?</li>
+                                <li><strong>Time Criticality:</strong> How time-sensitive is this?</li>
+                                <li><strong>Risk/Opportunity:</strong> How much risk does this reduce or opportunity does it enable?</li>
+                                <li><strong>Job Size/Effort:</strong> How much effort is required?</li>
+                            </ul>
+                        </li>
+                        <li>WSJF Score: (Business Value + Time Criticality + Risk/Opportunity) ÷ Job Size</li>
+                        <li>Higher WSJF scores indicate higher priority items</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn-add" onclick="addRow()">
+                    <span>+ Add Project</span>
+                </button>
+                <button class="btn-sort" onclick="sortByWSJF()">
+                    <span>↓↑ Sort by WSJF</span>
+                </button>
+                <button class="btn-export" onclick="exportToExcel()">
+                    <span>↓ Export to CSV</span>
+                </button>
+            </div>
+            
+            <div class="table-container">
+                <table id="wsjfTable">
+                    <thead>
+                        <tr>
+                            <th>Project/Initiative</th>
+                            <th>Business Value</th>
+                            <th>Time Criticality</th>
+                            <th>Risk/Opportunity</th>
+                            <th>Job Size</th>
+                            <th>WSJF Score</th>
+                            <th>Rank</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Rows will be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <footer>
+            WSJF Prioritization Tool &copy; 2025
+        </footer>
+    </div>
+
+    <script>
+        // Fibonacci-like scale options with their numerical equivalents
+        const fibOptions = [
+            { text: "Minimal", value: 1 },
+            { text: "Low", value: 2 },
+            { text: "Medium", value: 3 },
+            { text: "High", value: 5 },
+            { text: "Very High", value: 8 },
+            { text: "Extreme", value: 13 },
+            { text: "Exceptional", value: 21 }
+        ];
+
+        // Initialize with 3 empty rows
+        document.addEventListener('DOMContentLoaded', function() {
+            for (let i = 0; i < 3; i++) {
+                addRow();
+            }
+            updateRanks();
+        });
+
+        function toggleInstructions() {
+            const content = document.getElementById('instructions-content');
+            const toggleIcon = document.getElementById('toggle-icon');
+            const toggleButton = toggleIcon.parentElement;
+            
+            content.classList.toggle('show');
+            
+            if (content.classList.contains('show')) {
+                toggleIcon.textContent = '▼';
+                toggleButton.textContent = ' Hide Instructions';
+                toggleButton.prepend(toggleIcon);
+            } else {
+                toggleIcon.textContent = '▶';
+                toggleButton.textContent = ' Show Instructions';
+                toggleButton.prepend(toggleIcon);
+            }
+        }
+
+        function addRow() {
+            const tbody = document.getElementById('tableBody');
+            const rowCount = tbody.rows.length;
+            const row = tbody.insertRow();
+            
+            // Project name cell
+            let cell1 = row.insertCell(0);
+            cell1.innerHTML = `<input type="text" placeholder="Enter project name" onchange="updateRanks()">`;
+            
+            // Business Value cell
+            let cell2 = row.insertCell(1);
+            cell2.innerHTML = createDropdown("bv_" + rowCount);
+            
+            // Time Criticality cell
+            let cell3 = row.insertCell(2);
+            cell3.innerHTML = createDropdown("tc_" + rowCount);
+            
+            // Risk/Opportunity cell
+            let cell4 = row.insertCell(3);
+            cell4.innerHTML = createDropdown("ro_" + rowCount);
+            
+            // Job Size cell
+            let cell5 = row.insertCell(4);
+            cell5.innerHTML = createDropdown("js_" + rowCount);
+            
+            // WSJF Score cell
+            let cell6 = row.insertCell(5);
+            cell6.className = 'result';
+            cell6.innerHTML = '0';
+            
+            // Priority Rank cell
+            let cell7 = row.insertCell(6);
+            cell7.className = 'result';
+            cell7.innerHTML = '-';
+            
+            // Actions cell
+            let cell8 = row.insertCell(7);
+            cell8.innerHTML = `<div class="row-actions">
+                <button class="btn-action btn-up" onclick="moveRowUp(this)" title="Move Up">↑</button>
+                <button class="btn-action btn-down" onclick="moveRowDown(this)" title="Move Down">↓</button>
+                <button class="btn-action btn-delete" onclick="deleteRow(this)" title="Delete">✖</button>
+            </div>`;
+        }
+
+        function createDropdown(id) {
+            let select = `<select id="${id}" onchange="calculateWSJF(this)">`;
+            select += `<option value="">Select</option>`;
+            
+            for (let option of fibOptions) {
+                select += `<option value="${option.value}">${option.text} (${option.value})</option>`;
+            }
+            
+            select += `</select>`;
+            return select;
+        }
+
+        function calculateWSJF(element) {
+            const row = element.closest('tr');
+            const cells = row.cells;
+            
+            // Get values from dropdowns
+            const bvSelect = cells[1].querySelector('select');
+            const tcSelect = cells[2].querySelector('select');
+            const roSelect = cells[3].querySelector('select');
+            const jsSelect = cells[4].querySelector('select');
+            
+            // Check if all values are selected
+            if (bvSelect.value && tcSelect.value && roSelect.value && jsSelect.value) {
+                const bv = parseInt(bvSelect.value);
+                const tc = parseInt(tcSelect.value);
+                const ro = parseInt(roSelect.value);
+                const js = parseInt(jsSelect.value);
+                
+                // Calculate WSJF: (Business Value + Time Criticality + Risk/Opportunity) ÷ Job Size
+                const wsjf = ((bv + tc + ro) / js).toFixed(2);
+                cells[5].innerHTML = wsjf;
+                
+                // Add color coding based on WSJF score
+                if (wsjf >= 5) {
+                    cells[5].style.backgroundColor = 'rgba(46, 204, 113, 0.2)';
+                } else if (wsjf >= 3) {
+                    cells[5].style.backgroundColor = 'rgba(243, 156, 18, 0.1)';
+                } else {
+                    cells[5].style.backgroundColor = '';
+                }
+            } else {
+                cells[5].innerHTML = '0';
+                cells[5].style.backgroundColor = '';
+            }
+            
+            updateRanks();
+        }
+
+        function updateRanks() {
+            const tbody = document.getElementById('tableBody');
+            const rows = Array.from(tbody.rows);
+            
+            // Sort rows by WSJF scores in descending order
+            rows.sort((a, b) => {
+                const scoreA = parseFloat(a.cells[5].innerHTML) || 0;
+                const scoreB = parseFloat(b.cells[5].innerHTML) || 0;
+                return scoreB - scoreA;
+            });
+            
+            // Update priority ranks
+            rows.forEach((row, index) => {
+                const projectName = row.cells[0].querySelector('input').value;
+                const rankCell = row.cells[6];
+                
+                if (projectName && parseFloat(row.cells[5].innerHTML) > 0) {
+                    rankCell.innerHTML = index + 1;
+                    rankCell.className = 'result';
+                    
+                    // Add special styling for top 3 priorities
+                    if (index === 0) {
+                        rankCell.classList.add('priority-1');
+                    } else if (index === 1) {
+                        rankCell.classList.add('priority-2');
+                    } else if (index === 2) {
+                        rankCell.classList.add('priority-3');
+                    } else {
+                        rankCell.classList.remove('priority-1', 'priority-2', 'priority-3');
+                    }
+                } else {
+                    rankCell.innerHTML = '-';
+                    rankCell.className = 'result';
+                }
+            });
+        }
+
+        function sortByWSJF() {
+            const tbody = document.getElementById('tableBody');
+            const rows = Array.from(tbody.rows);
+            
+            // Sort rows by WSJF scores in descending order
+            rows.sort((a, b) => {
+                const scoreA = parseFloat(a.cells[5].innerHTML) || 0;
+                const scoreB = parseFloat(b.cells[5].innerHTML) || 0;
+                return scoreB - scoreA;
+            });
+            
+            // Reorder the rows in the table
+            rows.forEach(row => tbody.appendChild(row));
+            
+            // Update ranks
+            updateRanks();
+        }
+
+        function moveRowUp(btn) {
+            const row = btn.closest('tr');
+            const prev = row.previousElementSibling;
+            if (prev) {
+                row.parentNode.insertBefore(row, prev);
+                updateRanks();
+            }
+        }
+
+        function moveRowDown(btn) {
+            const row = btn.closest('tr');
+            const next = row.nextElementSibling;
+            if (next) {
+                row.parentNode.insertBefore(next, row);
+                updateRanks();
+            }
+        }
+
+        function deleteRow(btn) {
+            if (document.getElementById('tableBody').rows.length > 1) {
+                const row = btn.closest('tr');
+                row.parentNode.removeChild(row);
+                updateRanks();
+            } else {
+                alert("You must have at least one project row");
+            }
+        }
+
+        function exportToExcel() {
+            // Create a CSV string
+            let csv = 'Project/Initiative,Business Value,Time Criticality,Risk/Opportunity,Job Size,WSJF Score,Priority Rank\n';
+            
+            const rows = document.getElementById('tableBody').rows;
+            for (let i = 0; i < rows.length; i++) {
+                const projectName = rows[i].cells[0].querySelector('input').value || '';
+                
+                const bvSelect = rows[i].cells[1].querySelector('select');
+                const tcSelect = rows[i].cells[2].querySelector('select');
+                const roSelect = rows[i].cells[3].querySelector('select');
+                const jsSelect = rows[i].cells[4].querySelector('select');
+                
+                const bvText = bvSelect.selectedIndex > 0 ? bvSelect.options[bvSelect.selectedIndex].text : '';
+                const tcText = tcSelect.selectedIndex > 0 ? tcSelect.options[tcSelect.selectedIndex].text : '';
+                const roText = roSelect.selectedIndex > 0 ? roSelect.options[roSelect.selectedIndex].text : '';
+                const jsText = jsSelect.selectedIndex > 0 ? jsSelect.options[jsSelect.selectedIndex].text : '';
+                
+                const wsjf = rows[i].cells[5].innerHTML;
+                const rank = rows[i].cells[6].innerHTML;
+                
+                if (projectName) {
+                    csv += `"${projectName}","${bvText}","${tcText}","${roText}","${jsText}","${wsjf}","${rank}"\n`;
+                }
+            }
+            
+            // Create a download link
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'WSJF_Prioritization.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
