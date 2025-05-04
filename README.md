@@ -66,7 +66,7 @@ This scale helps differentiate between items and avoids false precision.
 
 ## Tool Demo - The Interface
 
-Our WSJF tool provides an intuitive interface to:
+WSJF tool provides an intuitive interface to:
 - Add and evaluate projects
 - Calculate WSJF scores automatically
 - Visually sort priorities
